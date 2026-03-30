@@ -1,0 +1,31 @@
+# Kodi Media Center language file
+msgid ""
+msgstr ""
+
+msgctxt "#30000"
+msgid "General"
+msgstr ""
+
+msgctxt "#30001"
+msgid "Primary subtitle language"
+msgstr ""
+
+msgctxt "#30002"
+msgid "Secondary subtitle language"
+msgstr ""
+
+msgctxt "#200"
+msgid "Error"
+msgstr ""
+
+msgctxt "#201"
+msgid "Cannot play video"
+msgstr ""
+
+msgctxt "#202"
+msgid "Video not found"
+msgstr ""
+
+msgctxt "#203"
+msgid "Cannot load content"
+msgstr ""

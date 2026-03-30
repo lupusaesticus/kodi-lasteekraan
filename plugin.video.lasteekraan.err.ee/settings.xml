@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+    <category label="30000">
+        <setting id="primaryLanguage" type="select" label="30001" values="et|ru|en" default="et"/>
+        <setting id="secondaryLanguage" type="select" label="30002" values="et|ru|en" default="et"/>
+    </category>
+</settings>

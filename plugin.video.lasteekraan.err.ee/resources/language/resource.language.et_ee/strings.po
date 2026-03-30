@@ -1,0 +1,31 @@
+# Kodi Media Center language file
+msgid ""
+msgstr ""
+
+msgctxt "#30000"
+msgid "Üldine"
+msgstr ""
+
+msgctxt "#30001"
+msgid "Esmane subtiitrite keel"
+msgstr ""
+
+msgctxt "#30002"
+msgid "Teisene subtiitrite keel"
+msgstr ""
+
+msgctxt "#200"
+msgid "Viga"
+msgstr ""
+
+msgctxt "#201"
+msgid "Ei saa videot esitada"
+msgstr ""
+
+msgctxt "#202"
+msgid "Videot ei leitud"
+msgstr ""
+
+msgctxt "#203"
+msgid "Ei saa sisu laadida"
+msgstr ""
