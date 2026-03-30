@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.lasteekraan.err.ee"
        name="Lasteekraan"
-       version="0.1"
-       provider-name="Lupus">
+       version="1.0.0"
+       provider-name="Lupus (github.com/lupusaesticus)">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
     <import addon="script.module.inputstreamhelper" version="0.3.3"/>
@@ -19,7 +19,7 @@
     <license>GPL-3.0-only</license>
     <website>https://lasteekraan.err.ee</website>
     <source>https://github.com/lupusaesticus/plugin.video.lasteekraan.err.ee</source>
-    <news>v0.1 - First Alpha</news>
+    <news>v1.0.0 - First Stable</news>
     <assets>
       <icon>resources/logo.png</icon>
       <fanart>resources/fanart.jpg</fanart>
