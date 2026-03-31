@@ -27,6 +27,11 @@ KODI_VERSION_MAJOR = int(xbmc.getInfoLabel('System.BuildVersion').split('.')[0])
 DRM = 'com.widevine.alpha'
 is_helper = inputstreamhelper.Helper('mpd', drm=DRM)
 
+# define category ID specific icons
+CATEGORY_ICONS = {
+    'multikad': 'multikad.png',
+}
+
 
 def download_url(url):
     """Core fetcher for the ERR API."""
@@ -62,7 +67,8 @@ class Lasteekraan(object):
         items = []
         slugs = []
 
-        blacklist = ['minulasteekraan', 'voistlused', '1608952901', '1608964987', '1608953698', 'ajakiri-taheke', 'mangud']
+        blacklist = ['minulasteekraan', 'voistlused', '1608952901', '1608964987', '1608953698', 'ajakiri-taheke', 'mangud', 'koduope']
+        title_blacklist = ['Viimati lisatud multikad', 'Viimati lisatud saated ja filmid']
 
         try:
             sections = data.get('data', {}).get('category', {}).get('frontPage', [])
@@ -72,12 +78,18 @@ class Lasteekraan(object):
                 
                 if not slug or slug in blacklist or slug.startswith('http'):
                     continue
+                if title in title_blacklist:
+                    continue
                 
                 if title and slug:
                     item = xbmcgui.ListItem(title)
-                    item.setArt({'icon': self.logo, 'thumb': self.logo})
+                    icon_file = CATEGORY_ICONS.get(slug, 'logo.png')
+                    icon_path = os.path.join(self.addon.getAddonInfo('path'), 'resources', icon_file)
+                    item.setArt({'icon': icon_path, 'thumb': icon_path})
+                   # item.setArt({'icon': self.logo, 'thumb': self.logo})
                     items.append((f"{self.path}?action=browse&category_id={slug}", item, True))
                     slugs.append(slug)
+
                     
         except Exception as e:
             xbmc.log(f"[Lasteekraan] Category Parse Error: {e}", xbmc.LOGERROR)
@@ -119,6 +131,8 @@ class Lasteekraan(object):
         except Exception as e:
             xbmc.log(f"[Lasteekraan] Browse Error: {e}", xbmc.LOGERROR)
 
+        # sort
+        items.sort(key=lambda x: x[1].getLabel())
         xbmcplugin.addDirectoryItems(self.handle, items)
         xbmcplugin.endOfDirectory(self.handle)
         return show_ids
@@ -149,6 +163,8 @@ class Lasteekraan(object):
         for ep in active_episodes:
             self._add_video_item(items, ep, fallback_thumb=root_thumb)
 
+        # sort
+        items.sort(key=lambda x: x[1].getLabel())
         xbmcplugin.addDirectoryItems(self.handle, items)
         xbmcplugin.endOfDirectory(self.handle)
 
@@ -166,6 +182,7 @@ class Lasteekraan(object):
         seasons = season_data.get('items', []) if isinstance(season_data, dict) else []
 
         if len(seasons) > 1:
+            seasons.sort(key=lambda s: int(s.get('name', '0')) if str(s.get('name', '0')).isdigit() else 0)
             for season in seasons:
                 season_name = season.get('name', 'Unknown')
                 s_id = season.get('firstContentId')
@@ -181,6 +198,7 @@ class Lasteekraan(object):
                 self._add_video_item(items, main, fallback_thumb=root_thumb)
             for ep in ep_list:
                 self._add_video_item(items, ep, fallback_thumb=root_thumb)
+            items.sort(key=lambda x: x[1].getLabel())
 
         xbmcplugin.addDirectoryItems(self.handle, items)
         xbmcplugin.endOfDirectory(self.handle)
@@ -208,8 +226,7 @@ class Lasteekraan(object):
             'mediatype': 'episode' if season else 'movie'
         }
         if year: info['year'] = year
-        #if season and str(season).isdigit(): info['season'] = int(season)
-        if episode and str(episode).isdigit(): info['episode'] = int(episode)
+        if episode: info['episode'] = episode
             
         item.setInfo('video', info)
 
@@ -256,9 +273,6 @@ class Lasteekraan(object):
 
             # 2. DRM - The token is in the 'jwt' key
             token = m.get('jwt')
-            # Check if the 'jwt' is actually inside 'medias[0]' or 'medias[0]['restrictions']'
-            #token = response['data']['mainContent']['medias'][0].get('jwt', '')
-            
             # The license servers are in 'licenseServerUrl'
             license_urls = m.get('licenseServerUrl', {})
             license_server = license_urls.get('widevine')
@@ -281,66 +295,23 @@ class Lasteekraan(object):
 
         return saade, subs, token, license_server
 
-# play_stream working for non-drm"
-    '''
-    def play_stream(self, content_id):
-        if not content_id:
-            raise LasteekraanException(ADDON.getLocalizedString(202))
-        
-        saade, subs, token, license_server = self.get_media_location(content_id)
-        if not saade:
-            return
-
-        item = xbmcgui.ListItem(path=saade)
-        item.setContentLookup(False)
-        
-        if '.mpd' in saade:
-            item.setMimeType('application/dash+xml')
-            item.setProperty('inputstream.adaptive.manifest_type', 'mpd')
-        else:
-            item.setMimeType('application/vnd.apple.mpegurl')
-            item.setProperty('inputstream.adaptive.manifest_type', 'hls')
-
-        if is_helper.check_inputstream():
-            if KODI_VERSION_MAJOR >= 19:
-                item.setProperty('inputstream', is_helper.inputstream_addon)
-            else:
-                item.setProperty('inputstreamaddon', is_helper.inputstream_addon)
-            
-            if token and license_server:
-                item.setProperty('inputstream.adaptive.license_type', DRM)
-                item.setProperty('inputstream.adaptive.license_key', f"{license_server}|X-AxDRM-Message={token}|R{{SSM}}|")
-        
-        if subs:
-            try:
-                item.setSubtitles([sub[0] for sub in subs if sub])
-            except:
-                pass
-        
-        xbmcplugin.setResolvedUrl(self.handle, True, item)
-    
-    # second non working attempt
-    def play_stream(self, content_id):
-        saade, subs, token, license_server = self.get_media_location(content_id)
-        if not saade: return
-
-        item = xbmcgui.ListItem(path=saade)
-        item.setProperty('inputstream', 'inputstream.adaptive')
-        item.setProperty('inputstream.adaptive.manifest_type', 'mpd')
-        item.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
-        
-        if token and license_server:
-            # Crucial: License Server | Header | Body Flag | Base64 Flag
-            license_key = f"{license_server}|X-AxDRM-Message={token}|B|true"
-            item.setProperty('inputstream.adaptive.license_key', license_key)
-
-        xbmcplugin.setResolvedUrl(self.handle, True, item)
-    '''
-
     def play_stream(self, content_id):
         saade, subs, token, license_server = self.get_media_location(content_id)
         if not saade: 
             return
+
+
+        # Pre-check manifest accessibility
+        try:
+            req = urllib.request.Request(saade, headers={'User-Agent': 'Mozilla/5.0'}, method='HEAD')
+            urllib.request.urlopen(req, timeout=10)
+        except urllib.error.HTTPError as e:
+            if e.code == 403:
+                xbmcgui.Dialog().ok('Lasteekraan', 'Error 403: Access Denied (Geoblock Likely)')
+                xbmcplugin.setResolvedUrl(self.handle, False, xbmcgui.ListItem())
+                return
+        except Exception:
+            pass  # let ISA handle other errors normally
 
         #manifest_with_header = f"{saade}|X-AxDRM-Message={token}"
         #item = xbmcgui.ListItem(path=manifest_with_header)
@@ -355,9 +326,6 @@ class Lasteekraan(object):
             item.setContentLookup(False)
             item.setMimeType('application/dash+xml')
             burl = 'https://lasteekraan.err.ee'
-           # license_key = f"{license_server}|Content-Type=&Referer={burl}/&Origin={burl}&X-AxDRM-Message={token}|R{{SSM}}|"
-           # license_key = f"{license_server}|X-AxDRM-Message={token}|B{{SSM}}|"
-           # license_key = f"{license_server}|Content-Type=application/octet-stream&X-AxDRM-Message={token}|B{{SSM}}|"
             license_key = f"{license_server}|Content-Type=application/octet-stream&X-AxDRM-Message={token}|R{{SSM}}|"
 
             # Necessary for Kodi 19+ to ensure the addon is triggered
