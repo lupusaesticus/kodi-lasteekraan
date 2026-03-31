@@ -345,13 +345,19 @@ class Lasteekraan(object):
         if subs:
             # Kodi expects a list of URLs and a list of languages
             sub_urls = [s[0] if s[0].startswith('http') else 'https:' + s[0] for s in subs]
-            #item.setProperty('inputstream.adaptive.subtitle_track', ",".join(sub_urls))
-            # Note: You can also set item.setSubtitles(sub_urls) for standard Kodi handling
             item.setSubtitles(sub_urls)
-            item.setProperty('inputstream.adaptive.subtitle_track', 'off')
-
+     
 
         xbmcplugin.setResolvedUrl(self.handle, True, item)
+        
+        # Subs off by default regardless of kodi settings - Wait for playback to actually start, then force subs off
+        if subs:
+            player = xbmc.Player()
+            for _ in range(50):  # Wait up to 5 seconds
+                if player.isPlayingVideo():
+                    player.showSubtitles(False)
+                    break
+                xbmc.sleep(100)
 
     def display_error(self, message='n/a'):
         heading = ''
