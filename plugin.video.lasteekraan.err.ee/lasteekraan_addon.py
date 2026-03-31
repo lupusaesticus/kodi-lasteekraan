@@ -67,7 +67,7 @@ class Lasteekraan(object):
         items = []
         slugs = []
 
-        blacklist = ['minulasteekraan', 'voistlused', '1608952901', '1608964987', '1608953698', 'ajakiri-taheke', 'mangud']
+        blacklist = ['minulasteekraan', 'voistlused', '1608952901', '1608964987', '1608953698', 'ajakiri-taheke', 'mangud', '1038081', '1608957599']
         title_blacklist = ['Viimati lisatud multikad', 'Viimati lisatud saated ja filmid']
 
         try:
