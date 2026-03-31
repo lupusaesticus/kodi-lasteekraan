@@ -302,16 +302,16 @@ class Lasteekraan(object):
 
 
         # Pre-check manifest accessibility
-        try:
-            req = urllib.request.Request(saade, headers={'User-Agent': 'Mozilla/5.0'}, method='HEAD')
-            urllib.request.urlopen(req, timeout=10)
-        except urllib.error.HTTPError as e:
-            if e.code == 403:
-                xbmcgui.Dialog().ok('Lasteekraan', 'Error 403: Access Denied (Geoblock Likely)')
-                xbmcplugin.setResolvedUrl(self.handle, False, xbmcgui.ListItem())
-                return
-        except Exception:
-            pass  # let ISA handle other errors normally
+        # try:
+        #     req = urllib.request.Request(saade, headers={'User-Agent': 'Mozilla/5.0'}, method='HEAD')
+        #     urllib.request.urlopen(req, timeout=10)
+        # except urllib.error.HTTPError as e:
+        #     if e.code == 403:
+        #         xbmcgui.Dialog().ok('Lasteekraan', 'Error 403: Access Denied (Geoblock Likely)')
+        #         xbmcplugin.setResolvedUrl(self.handle, False, xbmcgui.ListItem())
+        #         return
+        # except Exception:
+        #     pass  # let ISA handle other errors normally
 
         #manifest_with_header = f"{saade}|X-AxDRM-Message={token}"
         #item = xbmcgui.ListItem(path=manifest_with_header)
