@@ -59,6 +59,7 @@ class Lasteekraan(object):
         self.logo = os.path.join(self.addon.getAddonInfo('path'), 'resources', 'logo.png')
         
     def list_categories(self):
+
         url = 'https://services.err.ee/api/v2/category/getByUrl?url=vaata-ja-kuula&domain=lasteekraan.err.ee&page=web'
         html = download_url(url)
         if not html: return []
@@ -99,6 +100,7 @@ class Lasteekraan(object):
         return slugs
 
     def browse_shows(self, category_id):
+        xbmcplugin.setContent(self.handle, 'tvshows')
         url = f'https://services.err.ee/api/v2/category/getByUrl?url={category_id}&domain=lasteekraan.err.ee&page=web'
         html = download_url(url)
         if not html: return []
@@ -110,15 +112,23 @@ class Lasteekraan(object):
             for show in category_items:
                 title, s_id, s_type = show.get('heading'), show.get('id'), show.get('type')
                 
-                thumb = self.fanart
-                for photo_key in ('horizontalPoster', 'photos'):
-                    photos = show.get(photo_key, [])
-                    if photos and photos[0].get('photoTypes', {}).get('26'):
-                        thumb = photos[0]['photoTypes']['26']['url']
-                        break
+                # Get specific URLs
+                v_url = self._get_best_thumb(show, mode='vertical')
+                h_url = self._get_best_thumb(show, mode='horizontal')
+
+                # Ensure the poster isn't empty if v_url failed
+                poster = v_url if v_url else (h_url if h_url else self.fanart)
+                landscape = h_url if h_url else (v_url if v_url else self.fanart)
 
                 item = xbmcgui.ListItem(title)
-                item.setArt({'fanart': self.fanart, 'poster': thumb, 'icon': thumb, 'thumb': thumb})
+                
+                # Apply to Kodi
+                item.setArt({
+                    'poster': poster,    # Vertical .png
+                    'icon': poster,      # Vertical .png
+                    'thumb': landscape,  # Horizontal .jpg
+                    'fanart': landscape  # Horizontal .jpg
+                })
 
                 action = "watch&contentId" if s_type in ['movie', 'video'] else "series&seriesId"
                 is_folder = s_type not in ['movie', 'video']
@@ -138,6 +148,7 @@ class Lasteekraan(object):
         return show_ids
     
     def browse_season(self, season_id):
+        xbmcplugin.setContent(self.handle, 'episodes')
         url = f"https://services.err.ee/api/v2/vodContent/getContentPageData?contentId={season_id}&page=web"
         response = download_url(url)
         if not response: return
@@ -158,7 +169,7 @@ class Lasteekraan(object):
             active_episodes = data.get('mainContent', {}).get('contents', [])
 
         main = data.get('mainContent', {})
-        root_thumb = self._get_best_thumb(main)
+        root_thumb = self._get_best_thumb(main, mode='horizontal')
 
         for ep in active_episodes:
             self._add_video_item(items, ep, fallback_thumb=root_thumb)
@@ -176,23 +187,28 @@ class Lasteekraan(object):
         data = json.loads(response).get('data', {})
         items = []
         main = data.get('mainContent', {})
-        root_thumb = self._get_best_thumb(main)
+      
 
         season_data = data.get('seasonList')
         seasons = season_data.get('items', []) if isinstance(season_data, dict) else []
 
         if len(seasons) > 1:
+            xbmcplugin.setContent(self.handle, 'seasons')
             seasons.sort(key=lambda s: int(s.get('name', '0')) if str(s.get('name', '0')).isdigit() else 0)
             for season in seasons:
+                root_thumb = self._get_best_thumb(main, mode='vertical')
                 season_name = season.get('name', 'Unknown')
                 s_id = season.get('firstContentId')
                 
                 url = f"{self.path}?action=browse_season&season_id={s_id}"
-                
+              
+
                 item = xbmcgui.ListItem(f"Season {season_name}")
                 item.setArt({'thumb': root_thumb, 'fanart': self.fanart})
                 items.append((url, item, True))
         else:
+            xbmcplugin.setContent(self.handle, 'episodes')
+            root_thumb = self._get_best_thumb(main, mode='horizontal')
             ep_list = seasons[0].get('contents', []) if seasons else []
             if not ep_list and main:
                 self._add_video_item(items, main, fallback_thumb=root_thumb)
@@ -230,19 +246,45 @@ class Lasteekraan(object):
             
         item.setInfo('video', info)
 
-        thumb = self._get_best_thumb(data_dict) or fallback_thumb
-        item.setArt({'thumb': thumb, 'fanart': thumb, 'poster': thumb})
+        # thumb = self._get_best_thumb(data_dict) or fallback_thumb
+        # item.setArt({'thumb': thumb, 'fanart': thumb, 'poster': thumb})
+
+        # Call the helper with the specific parameter
+        thumb_v = self._get_best_thumb(data_dict, mode='vertical') or fallback_thumb
+        thumb_h = self._get_best_thumb(data_dict, mode='horizontal') or fallback_thumb
+
+        # Map them to the correct Kodi art keys
+        item.setArt({
+            'poster': thumb_v,   # Vertical
+            'icon': thumb_v,     # Vertical fills the square better
+            'thumb': thumb_h,    # Horizontal
+            'fanart': thumb_h    # Horizontal
+        })
+
         
         item.setProperty('IsPlayable', 'true')
         url = f"{self.path}?action=watch&contentId={content_id}"
         items.append((url, item, False))
 
-    def _get_best_thumb(self, data_dict):
-        photos = data_dict.get('photos', [])
-        if photos:
-            types = photos[0].get('photoTypes', {})
-            return types.get('2', {}).get('url') or types.get('48', {}).get('url')
-        return ""
+    # def _get_best_thumb(self, data_dict):
+    #     photos = data_dict.get('photos', [])
+    #     if photos:
+    #         types = photos[0].get('photoTypes', {})
+    #         return types.get('2', {}).get('url') or types.get('48', {}).get('url')
+    #     return ""
+
+    def _get_best_thumb(self, data_dict, mode='horizontal'):
+        photo_list = data_dict.get('verticalPhotos' if mode == 'vertical' else 'horizontalPhotos', [])
+        
+        url = ""
+        if photo_list and isinstance(photo_list, list):
+            url = photo_list[0].get('photoUrlOriginal', "")
+        
+        if not url:
+            generic = data_dict.get('photos', [])
+            url = generic[0].get('photoUrlOriginal', "") if generic else ""
+                
+        return str(url)
 
     def get_media_location(self, content_id):
         url = f"https://services.err.ee/api/v2/vodContent/getContentPageData?contentId={content_id}"
