@@ -121,30 +121,36 @@ class Lasteekraan(object):
                 landscape = h_url if h_url else (v_url if v_url else self.fanart)
 
                 item = xbmcgui.ListItem(title)
-                
-                # Apply to Kodi
+
+                is_folder = s_type not in ['movie', 'video']
+                #action = "watch&contentId" if s_type in ['movie', 'video'] else "series&seriesId"
+                action = "series&seriesId" if is_folder else "watch&contentId"
+       
                 item.setArt({
-                    'poster': poster,    # Vertical .pn
-                    'icon': poster,      # Vertical .png
-                    'thumb': landscape,  # Horizontal .jpg
-                    'fanart': landscape  # Horizontal .jpg
+                    'poster': poster, 
+                    'icon': poster, 
+                    'thumb': landscape,
+                    'fanart': landscape
                 })
 
                 info = {
-                    'title': title,           # 'title' variable you defined
-                    'mediatype': 'tvshow'     # Force this so InfoWall knows it's a series
-                }
+                     'title': title           
+                    ,'mediatype': 'tvshow' if is_folder else 'movie'  
+                    ,'playcount': 0 # dummy episode count 
+                    }
                 
-                item.setInfo('video',info)
+                # If it's a folder, tell Kodi there's at least 1 episode inside so it isn't "complete"
+                if is_folder:
+                    info['episode'] = 1
 
-                action = "watch&contentId" if s_type in ['movie', 'video'] else "series&seriesId"
-                is_folder = s_type not in ['movie', 'video']
+                item.setInfo('video',info)
                 
                 if not is_folder:
                     item.setProperty('IsPlayable', 'true')
 
                 items.append((f"{self.path}?action={action}={s_id}", item, is_folder))
                 show_ids.append(s_id)
+
         except Exception as e:
             xbmc.log(f"[Lasteekraan] Browse Error: {e}", xbmc.LOGERROR)
 
