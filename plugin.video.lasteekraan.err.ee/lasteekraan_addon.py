@@ -124,11 +124,18 @@ class Lasteekraan(object):
                 
                 # Apply to Kodi
                 item.setArt({
-                    'poster': poster,    # Vertical .png
+                    'poster': poster,    # Vertical .pn
                     'icon': poster,      # Vertical .png
                     'thumb': landscape,  # Horizontal .jpg
                     'fanart': landscape  # Horizontal .jpg
                 })
+
+                info = {
+                    'title': title,           # 'title' variable you defined
+                    'mediatype': 'tvshow'     # Force this so InfoWall knows it's a series
+                }
+                
+                item.setInfo('video',info)
 
                 action = "watch&contentId" if s_type in ['movie', 'video'] else "series&seriesId"
                 is_folder = s_type not in ['movie', 'video']
@@ -342,8 +349,7 @@ class Lasteekraan(object):
         if not saade: 
             return
 
-
-        # Pre-check manifest accessibility
+        # Pre-check 403 (WIP)
         # try:
         #     req = urllib.request.Request(saade, headers={'User-Agent': 'Mozilla/5.0'}, method='HEAD')
         #     urllib.request.urlopen(req, timeout=10)
@@ -358,7 +364,17 @@ class Lasteekraan(object):
         #manifest_with_header = f"{saade}|X-AxDRM-Message={token}"
         #item = xbmcgui.ListItem(path=manifest_with_header)
 
+        # Indivudal episode Plot fetch (only at stream time for speed) - To Do, cache in json
+        url = f"https://services.err.ee/api/v2/vodContent/getContentPageData?contentId={content_id}"
+        response = download_url(url) # Your helper to fetch JSON
+        data = json.loads(response).get('data', {})
+        main = data.get('mainContent', {})
+        # 2. Extract the episode plot
+        ep_plot = main.get('lead', '').replace('<p>', '').replace('</p>', '').strip()
+
         item = xbmcgui.ListItem(path=saade)
+        item.setInfo('video', {'plot': ep_plot})
+
         item.setProperty('inputstream', 'inputstream.adaptive')
         item.setProperty('inputstream.adaptive.manifest_type', 'mpd')
         item.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
@@ -366,8 +382,8 @@ class Lasteekraan(object):
         # Ensure 'item' is the ListItem you are working with
         if token and license_server:
             item.setContentLookup(False)
-            item.setMimeType('application/dash+xml')
-            burl = 'https://lasteekraan.err.ee'
+         #   item.setMimeType('application/dash+xml')
+         #   burl = 'https://lasteekraan.err.ee'
             license_key = f"{license_server}|Content-Type=application/octet-stream&X-AxDRM-Message={token}|R{{SSM}}|"
 
             # Necessary for Kodi 19+ to ensure the addon is triggered
