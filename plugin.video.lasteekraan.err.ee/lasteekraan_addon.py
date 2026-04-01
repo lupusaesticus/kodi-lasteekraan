@@ -87,7 +87,6 @@ class Lasteekraan(object):
                     icon_file = CATEGORY_ICONS.get(slug, 'logo.png')
                     icon_path = os.path.join(self.addon.getAddonInfo('path'), 'resources', icon_file)
                     item.setArt({'icon': icon_path, 'thumb': icon_path})
-                   # item.setArt({'icon': self.logo, 'thumb': self.logo})
                     items.append((f"{self.path}?action=browse&category_id={slug}", item, True))
                     slugs.append(slug)
 
@@ -124,10 +123,10 @@ class Lasteekraan(object):
                 
                 # Apply to Kodi
                 item.setArt({
-                    'poster': poster,    # Vertical .png
-                    'icon': poster,      # Vertical .png
-                    'thumb': landscape,  # Horizontal .jpg
-                    'fanart': landscape  # Horizontal .jpg
+                    'poster': poster,
+                    'icon': poster,
+                    'thumb': landscape,
+                    'fanart': landscape
                 })
 
                 action = "watch&contentId" if s_type in ['movie', 'video'] else "series&seriesId"
@@ -246,19 +245,16 @@ class Lasteekraan(object):
             
         item.setInfo('video', info)
 
-        # thumb = self._get_best_thumb(data_dict) or fallback_thumb
-        # item.setArt({'thumb': thumb, 'fanart': thumb, 'poster': thumb})
-
         # Call the helper with the specific parameter
         thumb_v = self._get_best_thumb(data_dict, mode='vertical') or fallback_thumb
         thumb_h = self._get_best_thumb(data_dict, mode='horizontal') or fallback_thumb
 
         # Map them to the correct Kodi art keys
         item.setArt({
-            'poster': thumb_v,   # Vertical
-            'icon': thumb_v,     # Vertical fills the square better
-            'thumb': thumb_h,    # Horizontal
-            'fanart': thumb_h    # Horizontal
+            'poster': thumb_v,
+            'icon': thumb_v,
+            'thumb': thumb_h,
+            'fanart': thumb_h
         })
 
         
@@ -266,12 +262,6 @@ class Lasteekraan(object):
         url = f"{self.path}?action=watch&contentId={content_id}"
         items.append((url, item, False))
 
-    # def _get_best_thumb(self, data_dict):
-    #     photos = data_dict.get('photos', [])
-    #     if photos:
-    #         types = photos[0].get('photoTypes', {})
-    #         return types.get('2', {}).get('url') or types.get('48', {}).get('url')
-    #     return ""
 
     def _get_best_thumb(self, data_dict, mode='horizontal'):
         photo_list = data_dict.get('verticalPhotos' if mode == 'vertical' else 'horizontalPhotos', [])
@@ -343,7 +333,7 @@ class Lasteekraan(object):
             return
 
 
-        # Pre-check manifest accessibility
+        # Pre-check manifest accessibility 
         # try:
         #     req = urllib.request.Request(saade, headers={'User-Agent': 'Mozilla/5.0'}, method='HEAD')
         #     urllib.request.urlopen(req, timeout=10)
@@ -355,9 +345,6 @@ class Lasteekraan(object):
         # except Exception:
         #     pass  # let ISA handle other errors normally
 
-        #manifest_with_header = f"{saade}|X-AxDRM-Message={token}"
-        #item = xbmcgui.ListItem(path=manifest_with_header)
-
         item = xbmcgui.ListItem(path=saade)
         item.setProperty('inputstream', 'inputstream.adaptive')
         item.setProperty('inputstream.adaptive.manifest_type', 'mpd')
@@ -366,8 +353,6 @@ class Lasteekraan(object):
         # Ensure 'item' is the ListItem you are working with
         if token and license_server:
             item.setContentLookup(False)
-            item.setMimeType('application/dash+xml')
-            burl = 'https://lasteekraan.err.ee'
             license_key = f"{license_server}|Content-Type=application/octet-stream&X-AxDRM-Message={token}|R{{SSM}}|"
 
             # Necessary for Kodi 19+ to ensure the addon is triggered
@@ -413,7 +398,6 @@ if __name__ == '__main__':
     base_url = sys.argv[0]
     params = dict(urllib.parse.parse_qsl(sys.argv[2][1:]))
     
-    # FIX 3: Passed variables in the correct order
     addon = Lasteekraan(handle, base_url)
     action = params.get('action')
 
@@ -427,7 +411,6 @@ if __name__ == '__main__':
         elif action == 'series':
             addon.list_series_episodes(params.get('seriesId'))
         elif action == 'browse_season':
-            # FIX 4: Corrected variable name from season_url to season_id
             addon.browse_season(params.get('season_id'))
         elif action == 'watch':
             addon.play_stream(params.get('contentId'))
