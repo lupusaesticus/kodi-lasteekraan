@@ -1,4 +1,4 @@
-## plugin.video.lasteekraan.err.ee - Kodi addon for [Lasteekraan.err.ee](https://lasteekraan.err.ee)
+## Kodi addon for [Lasteekraan.err.ee](https://lasteekraan.err.ee) - *plugin.video.lasteekraan.err.ee*
 
 ### 🇪🇪
 Kopeeritud yllari [ETV addonist (plugin.video.etv.ee)](https://github.com/yllar/plugin.video.etv.ee) ja kõvasti kohandatud Lasteekraani jaoks Claude'i ja Gemini abiga.
