@@ -16,7 +16,7 @@
     <description lang="en_GB">Watch children's shows from ERR Lasteekraan</description>
     <description lang="et_EE">Vaata Lasteekraani saateid</description>
     <disclaimer lang="en_GB">This add-on is not officially affiliated with, maintained, or endorsed by Eesti Rahvusringhääling (ERR). It is an independent, third-party integration created for personal use.</disclaimer>
-    <disclaimer lang="et_EE">See addon ei ole ametlikult seotud Eesti Rahvusringhäälinguga (ERR), ei ole nende poolt hooldatud ega toetatud. Tegemist on isiklikuks kasutamiseks loodud sõltumatu kolmanda osapoole lahendusega.</disclaimer>
+    <disclaimer lang="et_EE">See add-on ei ole ametlikult seotud Eesti Rahvusringhäälinguga (ERR), ei ole nende poolt hooldatud ega toetatud. Tegemist on isiklikuks kasutamiseks loodud sõltumatu kolmanda osapoole lahendusega.</disclaimer>
     <platform>all</platform>
     <license>GPL-3.0-only</license>
     <website>https://lasteekraan.err.ee</website>
