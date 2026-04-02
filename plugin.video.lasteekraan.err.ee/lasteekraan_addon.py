@@ -357,7 +357,7 @@ class Lasteekraan(object):
         #     pass  # let ISA handle other errors normally
 
 
-        # Indivudal episode Plot fetch (only at stream time for speed) - To Do, cache in json
+        # Indivudal episode Plot fetch (only at stream time for speed) - To Do: cache in json
         url = f"https://services.err.ee/api/v2/vodContent/getContentPageData?contentId={content_id}"
         response = download_url(url) # Your helper to fetch JSON
         data = json.loads(response).get('data', {})

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.lasteekraan.err.ee"
-       name="Lasteekraan"
-       version="1.1.0"
+       name="Lasteekraan.err.ee"
+       version="1.2.0"
        provider-name="Lupus (github.com/lupusaesticus)">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
@@ -15,11 +15,13 @@
     <summary lang="et_EE">Lasteekraani sisu lastele</summary>
     <description lang="en_GB">Watch children's shows from ERR Lasteekraan</description>
     <description lang="et_EE">Vaata Lasteekraani saateid</description>
+    <disclaimer lang="en_GB">This add-on is not officially affiliated with, maintained, or endorsed by Eesti Rahvusringhääling (ERR). It is an independent, third-party integration created for personal use.</disclaimer>
+    <disclaimer lang="et_EE">See addon ei ole ametlikult seotud Eesti Rahvusringhäälinguga (ERR), ei ole nende poolt hooldatud ega toetatud. Tegemist on isiklikuks kasutamiseks loodud sõltumatu kolmanda osapoole lahendusega.</disclaimer>
     <platform>all</platform>
     <license>GPL-3.0-only</license>
     <website>https://lasteekraan.err.ee</website>
     <source>https://github.com/lupusaesticus/plugin.video.lasteekraan.err.ee</source>
-    <news>v1.1.0 - Added alphabetical sorting, reporting error message for geoblocked content</news>
+    <news>v1.2.0 - Added categories for kodi skin compatibility, fixed subs (now loads but off by default)</news>
     <assets>
       <icon>resources/logo.png</icon>
       <fanart>resources/fanart.jpg</fanart>
