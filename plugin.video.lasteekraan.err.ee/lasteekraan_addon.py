@@ -120,8 +120,11 @@ class Lasteekraan(object):
                 landscape = h_url if h_url else (v_url if v_url else self.fanart)
 
                 item = xbmcgui.ListItem(title)
-                
-                # Apply to Kodi
+
+                is_folder = s_type not in ['movie', 'video']
+                #action = "watch&contentId" if s_type in ['movie', 'video'] else "series&seriesId"
+                action = "series&seriesId" if is_folder else "watch&contentId"
+       
                 item.setArt({
                     'poster': poster,
                     'icon': poster,
@@ -129,14 +132,23 @@ class Lasteekraan(object):
                     'fanart': landscape
                 })
 
-                action = "watch&contentId" if s_type in ['movie', 'video'] else "series&seriesId"
-                is_folder = s_type not in ['movie', 'video']
+                plot = show.get('lead', '').replace('<p>', '').replace('</p>', '').strip()
+                info = {'title': title, 'plot': plot}
+                #info = {
+                #     'title': title           
+                   # ,'mediatype': 'tvshow' if is_folder else 'movie'  
+                 #   }
+                if is_folder:
+                    info['episode'] = 99
+                
+                item.setInfo('video',info)
                 
                 if not is_folder:
                     item.setProperty('IsPlayable', 'true')
 
                 items.append((f"{self.path}?action={action}={s_id}", item, is_folder))
                 show_ids.append(s_id)
+
         except Exception as e:
             xbmc.log(f"[Lasteekraan] Browse Error: {e}", xbmc.LOGERROR)
 
@@ -332,8 +344,7 @@ class Lasteekraan(object):
         if not saade: 
             return
 
-
-        # Pre-check manifest accessibility 
+        # Pre-check 403 (WIP)
         # try:
         #     req = urllib.request.Request(saade, headers={'User-Agent': 'Mozilla/5.0'}, method='HEAD')
         #     urllib.request.urlopen(req, timeout=10)
@@ -345,7 +356,18 @@ class Lasteekraan(object):
         # except Exception:
         #     pass  # let ISA handle other errors normally
 
+
+        # Indivudal episode Plot fetch (only at stream time for speed) - To Do, cache in json
+        url = f"https://services.err.ee/api/v2/vodContent/getContentPageData?contentId={content_id}"
+        response = download_url(url) # Your helper to fetch JSON
+        data = json.loads(response).get('data', {})
+        main = data.get('mainContent', {})
+        # 2. Extract the episode plot
+        ep_plot = main.get('lead', '').replace('<p>', '').replace('</p>', '').strip()
+
         item = xbmcgui.ListItem(path=saade)
+        item.setInfo('video', {'plot': ep_plot})
+
         item.setProperty('inputstream', 'inputstream.adaptive')
         item.setProperty('inputstream.adaptive.manifest_type', 'mpd')
         item.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
