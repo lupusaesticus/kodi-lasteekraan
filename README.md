@@ -20,3 +20,10 @@ Intended primarily for personal use, provided as-is with no guarantees. No affil
 * DRM-protected content may not work below **Kodi 21 (Omega)**.
 * *InputStream Helper* addon must be installed and configured.
 * 🌍 Please note that a lot of non-Estonian content is restricted to Estonian IPs. These items remain listed but will fail to play without a specific error message if accessed from abroad.
+
+---
+
+### Installation / Paigaldamine
+1. Download this addon as a ZIP file.
+2. In Kodi, go to **Settings** > **Add-ons** > **Install from zip file**.
+3. In the **InputStream Helper** addon, select *configure* and then *Install Widewine CDM Library*
