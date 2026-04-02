@@ -133,16 +133,15 @@ class Lasteekraan(object):
                     'fanart': landscape
                 })
 
-                info = {
-                     'title': title           
-                    ,'mediatype': 'tvshow' if is_folder else 'movie'  
-                    ,'playcount': 0 # dummy episode count 
-                    }
-                
-                # If it's a folder, tell Kodi there's at least 1 episode inside so it isn't "complete"
+                plot = show.get('lead', '').replace('<p>', '').replace('</p>', '').strip()
+                info = {'title': title, 'plot': plot}
+                #info = {
+                #     'title': title           
+                   # ,'mediatype': 'tvshow' if is_folder else 'movie'  
+                 #   }
                 if is_folder:
-                    info['episode'] = 1
-
+                    info['episode'] = 99
+                
                 item.setInfo('video',info)
                 
                 if not is_folder:
