@@ -25,5 +25,6 @@ Intended primarily for personal use, provided as-is with no guarantees. No affil
 
 ### Installation / Paigaldamine
 1. Download this addon as a ZIP file.
+    * Alternatively use the repo from [repository.kodi.lupus](https://github.com/lupusaesticus/repository.kodi.lupus/releases)
 2. In Kodi, go to **Settings** > **Add-ons** > **Install from zip file**.
 3. In the **InputStream Helper** addon, select *configure* and then *Install Widewine CDM Library*
