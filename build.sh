@@ -1,12 +1,14 @@
 #!/bin/bash
 
-VERSION="1.1.0"
+
 
 ROOT_PATH=$PWD
 SRC_DIR="plugin.video.lasteekraan.err.ee"
 ADDON_ID="plugin.video.lasteekraan.err.ee"
 DIST_DIR="dist"
 REPO_DIR="$ROOT_PATH/../repository.kodi.lupus/zips/$ADDON_ID"
+
+VERSION=$(grep 'version="' "plugin.video.lasteekraan.err.ee/addon.xml" | sed -n '2p' | sed 's/.*version="\([^"]*\)".*/\1/')
 
 echo "Cleaning old builds..."
 rm -rf $DIST_DIR
