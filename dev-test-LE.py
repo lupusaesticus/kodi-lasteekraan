@@ -152,57 +152,55 @@ if __name__ == "__main__":
         print("STARTING TOKEN EXTRACTION TEST")
         print("="*50)
 
-        # ... (Keep your previous steps if you want to see the flow, or skip to here)
+#   # STEP 5: Get Token and Metadata for a specific Episode
+#         test_content_id = "1609163321" 
 
-  # STEP 5: Get Token and Metadata for a specific Episode
-        test_content_id = "1609163321" 
-
-        print(f"\n[TESTING EXTRACTION] Content ID: {test_content_id}")
-        print("-" * 40)
+#         print(f"\n[TESTING EXTRACTION] Content ID: {test_content_id}")
+#         print("-" * 40)
         
-        try:
-            # Capturing the full return from your get_media_location method
-            result = addon.get_media_location(test_content_id)
+#         try:
+#             # Capturing the full return from your get_media_location method
+#             result = addon.get_media_location(test_content_id)
             
-            if result:
-                url, subs, token, license_server = result
+#             if result:
+#                 url, subs, token, license_server = result
                 
-                print(f"  > Stream URL:    {url}")
-                print(f"  > Subtitles:     {subs if subs else 'None found'}")
-                print(f"  > License SRV:   {license_server}")
-                print(f"  > Token (JWT):   {token[:50]}...[truncated]") # Prints start of token
+#                 print(f"  > Stream URL:    {url}")
+#                 print(f"  > Subtitles:     {subs if subs else 'None found'}")
+#                 print(f"  > License SRV:   {license_server}")
+#                 print(f"  > Token (JWT):   {token[:50]}...[truncated]") # Prints start of token
                 
-                if token and license_server:
-                    print("\n[+] VALIDATION: Both Token and License Server present.")
-            else:
-                print("  [!] FAILED: get_media_location returned None.")
+#                 if token and license_server:
+#                     print("\n[+] VALIDATION: Both Token and License Server present.")
+#             else:
+#                 print("  [!] FAILED: get_media_location returned None.")
 
-        except Exception as e:
-            print(f"  [!] ERROR during extraction: {str(e)}")
+#         except Exception as e:
+#             print(f"  [!] ERROR during extraction: {str(e)}")
             
-        # STEP 6: Simulate Kodi's license_key construction
-        print("="*50)
-        print("STEP 6: KODI LICENSE KEY CONSTRUCTION")
-        print("="*50)
+#         # STEP 6: Simulate Kodi's license_key construction
+#         print("="*50)
+#         print("STEP 6: KODI LICENSE KEY CONSTRUCTION")
+#         print("="*50)
         
-        if token and license_server:
-            # This mirrors the exact logic in your play_stream function
-            # Format: LicenseURL | Headers | Challenge | Flags
-            # Note: We use .format or f-string with double braces for {{SSM}}
+#         if token and license_server:
+#             # This mirrors the exact logic in your play_stream function
+#             # Format: LicenseURL | Headers | Challenge | Flags
+#             # Note: We use .format or f-string with double braces for {{SSM}}
             
-            headers = f"X-AxDRM-Message={token}"
-            challenge = "R{SSM}" # Literal string Kodi expects
+#             headers = f"X-AxDRM-Message={token}"
+#             challenge = "R{SSM}" # Literal string Kodi expects
             
-            # The final string sent to item.setProperty()
-            constructed_key = f"{license_server}|{headers}|{challenge}|"
+#             # The final string sent to item.setProperty()
+#             constructed_key = f"{license_server}|{headers}|{challenge}|"
             
-            print(f"CONSTRUCTED KEY:\n{constructed_key}\n")
+#             print(f"CONSTRUCTED KEY:\n{constructed_key}\n")
             
-            # Validation Checks
-            parts = constructed_key.split('|')
-            print(f"Pipe count: {len(parts) - 1} (Should be 3 or 4)")
-            print(f"Header check: {'OK' if 'X-AxDRM-Message=' in constructed_key else 'FAIL'}")
-            print(f"SSM check: {'OK' if '{SSM}' in constructed_key else 'FAIL'}")
-        else:
-            print("SKIP: Missing token or license_server for construction.")
+#             # Validation Checks
+#             parts = constructed_key.split('|')
+#             print(f"Pipe count: {len(parts) - 1} (Should be 3 or 4)")
+#             print(f"Header check: {'OK' if 'X-AxDRM-Message=' in constructed_key else 'FAIL'}")
+#             print(f"SSM check: {'OK' if '{SSM}' in constructed_key else 'FAIL'}")
+#         else:
+#             print("SKIP: Missing token or license_server for construction.")
 
